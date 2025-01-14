@@ -10,7 +10,6 @@ from pathlib import Path
 from api_analytics.fastapi import Analytics
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -124,20 +123,6 @@ async def lifespan(_: FastAPI):
 app = FastAPI(lifespan=lifespan)
 app.state.limiter = limiter
 
-# Add CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# Add Trusted Host middleware
-app.add_middleware(
-    TrustedHostMiddleware,
-    allowed_hosts=["*", "gitingest-production.up.railway.app"]
-)
 
 async def rate_limit_exception_handler(request: Request, exc: Exception) -> Response:
     """
@@ -187,7 +172,7 @@ else:
     allowed_hosts = default_allowed_hosts
 
 # Add middleware to enforce allowed hosts
-# app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts)
 
 # Set up template rendering
 templates = Jinja2Templates(directory="templates")
