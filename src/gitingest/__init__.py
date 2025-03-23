@@ -1,8 +1,8 @@
-""" Gitingest: A package for ingesting data from Git repositories. """
+"""Gitingest: A package for ingesting data from Git repositories."""
 
-from gitingest.query_ingestion import run_ingest_query
-from gitingest.query_parser import parse_query
-from gitingest.repository_clone import clone_repo
-from gitingest.repository_ingest import ingest
+from gitingest.cloning import clone_repo
+from gitingest.entrypoint import ingest, ingest_async
+from gitingest.ingestion import ingest_query
+from gitingest.query_parsing import parse_query
 
-__all__ = ["run_ingest_query", "clone_repo", "parse_query", "ingest"]
+__all__ = ["ingest_query", "clone_repo", "parse_query", "ingest", "ingest_async"]

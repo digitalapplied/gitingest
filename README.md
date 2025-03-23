@@ -11,7 +11,7 @@
 
 Turn any Git repository into a prompt-friendly text ingest for LLMs.
 
-You can also replace `hub` with `ingest` in any GitHub URL to access the coresponding digest.
+You can also replace `hub` with `ingest` in any GitHub URL to access the corresponding digest.
 
 [gitingest.com](https://gitingest.com) · [Chrome Extension](https://chromewebstore.google.com/detail/adfjahbijlkjfoicpjkhjicpjpjfaood) · [Firefox Add-on](https://addons.mozilla.org/firefox/addon/gitingest)
 
@@ -23,8 +23,12 @@ You can also replace `hub` with `ingest` in any GitHub URL to access the corespo
   - File and directory structure
   - Size of the extract
   - Token count
-- **CLI tool**: Run it as a shell command (currently on Linux only)
+- **CLI tool**: Run it as a shell command
 - **Python package**: Import it in your code
+
+## 📚 Requirements
+
+- Python 3.7+
 
 ## 📦 Installation
 
@@ -37,7 +41,7 @@ pip install gitingest
 <!-- markdownlint-disable MD033 -->
 <a href="https://chromewebstore.google.com/detail/adfjahbijlkjfoicpjkhjicpjpjfaood" target="_blank" title="Get Gitingest Extension from Chrome Web Store"><img height="48" src="https://github.com/user-attachments/assets/20a6e44b-fd46-4e6c-8ea6-aad436035753" alt="Available in the Chrome Web Store" /></a>
 <a href="https://addons.mozilla.org/firefox/addon/gitingest" target="_blank" title="Get Gitingest Extension from Firefox Add-ons"><img height="48" src="https://github.com/user-attachments/assets/c0e99e6b-97cf-4af2-9737-099db7d3538b" alt="Get The Add-on for Firefox" /></a>
-<a href="https://microsoftedge.microsoft.com/addons/detail/nfobhllgcekbmpifkjlopfdfdmljmipf" target="_blank" title="Get Gitingest Extension from Firefox Add-ons"><img height="48" src="https://github.com/user-attachments/assets/204157eb-4cae-4c0e-b2cb-db514419fd9e" alt="Get from the Edge Add-ons" /></a>
+<a href="https://microsoftedge.microsoft.com/addons/detail/nfobhllgcekbmpifkjlopfdfdmljmipf" target="_blank" title="Get Gitingest Extension from Microsoft Edge Add-ons"><img height="48" src="https://github.com/user-attachments/assets/204157eb-4cae-4c0e-b2cb-db514419fd9e" alt="Get from the Edge Add-ons" /></a>
 <!-- markdownlint-enable MD033 -->
 
 The extension is open source at [lcandy2/gitingest-extension](https://github.com/lcandy2/gitingest-extension).
@@ -61,9 +65,10 @@ gitingest --help
 
 This will write the digest in a text file (default `digest.txt`) in your current working directory.
 
-## 🐛 Python package usage
+## 🐍 Python package usage
 
 ```python
+# Synchronous usage
 from gitingest import ingest
 
 summary, tree, content = ingest("path/to/directory")
@@ -74,7 +79,27 @@ summary, tree, content = ingest("https://github.com/cyclotruc/gitingest")
 
 By default, this won't write a file but can be enabled with the `output` argument.
 
-## 🌐 Self-host
+```python
+# Asynchronous usage
+from gitingest import ingest_async
+import asyncio
+
+result = asyncio.run(ingest_async("path/to/directory"))
+```
+
+### Jupyter notebook usage
+
+```python
+from gitingest import ingest_async
+
+# Use await directly in Jupyter
+summary, tree, content = await ingest_async("path/to/directory")
+
+```
+
+This is because Jupyter notebooks are asynchronous by default.
+
+## 🐳 Self-host
 
 1. Build the image:
 
@@ -97,82 +122,30 @@ If you are hosting it on a domain, you can specify the allowed hostnames via env
    ALLOWED_HOSTS="example.com, localhost, 127.0.0.1"
    ```
 
+## 🤝 Contributing
+
+### Non-technical ways to contribute
+
+- **Create an Issue**: If you find a bug or have an idea for a new feature, please [create an issue](https://github.com/cyclotruc/gitingest/issues/new) on GitHub. This will help us track and prioritize your request.
+- **Spread the Word**: If you like Gitingest, please share it with your friends, colleagues, and on social media. This will help us grow the community and make Gitingest even better.
+- **Use Gitingest**: The best feedback comes from real-world usage! If you encounter any issues or have ideas for improvement, please let us know by [creating an issue](https://github.com/cyclotruc/gitingest/issues/new) on GitHub or by reaching out to us on [Discord](https://discord.com/invite/zerRaGK9EC).
+
+### Technical ways to contribute
+
+Gitingest aims to be friendly for first time contributors, with a simple Python and HTML codebase. If you need any help while working with the code, reach out to us on [Discord](https://discord.com/invite/zerRaGK9EC). For detailed instructions on how to make a pull request, see [CONTRIBUTING.md](./CONTRIBUTING.md).
+
 ## 🛠️ Stack
 
 - [Tailwind CSS](https://tailwindcss.com) - Frontend
 - [FastAPI](https://github.com/fastapi/fastapi) - Backend framework
 - [Jinja2](https://jinja.palletsprojects.com) - HTML templating
 - [tiktoken](https://github.com/openai/tiktoken) - Token estimation
-- [apianalytics.dev](https://www.apianalytics.dev) - Simple Analytics
+- [posthog](https://github.com/PostHog/posthog) - Amazing analytics
 
-### Looking for a JavaScript/Node package?
+### Looking for a JavaScript/FileSystemNode package?
 
 Check out the NPM alternative 📦 Repomix: <https://github.com/yamadashy/repomix>
 
-## ✔️ Contributing to Gitingest
+## 🚀 Project Growth
 
-Gitingest aims to be friendly for first time contributors, with a simple python and html codebase. If you need any help while working with the code, reach out to us on [Discord](https://discord.com/invite/zerRaGK9EC).
-
-### Ways to help (non-technical)
-
-- Provide your feedback and ideas on Discord
-- Open an issue on GitHub to report a bug / submit a feature request
-- Talk about Gitingest on social media
-
-### How to submit a PR
-
-1. Fork the repository & clone it locally
-2. Setup the dev environment (see Development section bellow)
-3. Run unit tests with `pytest`
-4. Commit your changes and run `pre-commit`
-5. Open a pull request on GitHub for review and feedback
-6. (Optionnal) Invite project maintainer to your branch for easier collaboration
-
-## 🔧 Development
-
-### Run web UI locally
-
-1. Clone the repository:
-
-   ```bash
-   git clone https://github.com/cyclotruc/gitingest.git
-   cd gitingest
-   ```
-
-2. Install dependencies:
-
-   ```bash
-   pip install -r requirements-dev.txt
-   python -m venv .venv
-   source .venv/bin/activate
-   pre-commit install
-   ```
-
-3. Run the application:
-
-   ```bash
-   cd src
-   uvicorn main:app --reload
-   ```
-
-4. Run unit tests:
-
-   ```bash
-   pytest
-   ```
-
-The application should be available at `http://localhost:8000`.
-
-### Working on the CLI
-
-1. Install the package in dev mode:
-
-   ```bash
-   pip install -e .
-   ```
-
-2. Run the CLI:
-
-   ```bash
-   gitingest --help
-   ```
+[![Star History Chart](https://api.star-history.com/svg?repos=cyclotruc/gitingest&type=Date)](https://star-history.com/#cyclotruc/gitingest&Date)

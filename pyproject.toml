@@ -1,25 +1,31 @@
 [project]
 name = "gitingest"
-version = "0.1.2"
+version = "0.1.4"
 description="CLI tool to analyze and create text dumps of codebases for LLMs"
 readme = {file = "README.md", content-type = "text/markdown" }
-requires-python = ">= 3.10"
+requires-python = ">= 3.8"
 dependencies = [
     "click>=8.0.0",
-    "fastapi-analytics",
-    "fastapi[standard]",
+    "fastapi[standard]>=0.109.1",  # Vulnerable to https://osv.dev/vulnerability/PYSEC-2024-38
+    "pydantic",
     "python-dotenv",
     "slowapi",
-    "starlette",
+    "starlette>=0.40.0",  # Vulnerable to https://osv.dev/vulnerability/GHSA-f96h-pmfr-66vw
     "tiktoken",
-    "uvicorn",
+    "tomli",
+    "typing_extensions; python_version < '3.10'",
+    "uvicorn>=0.11.7",  # Vulnerable to https://osv.dev/vulnerability/PYSEC-2020-150
 ]
+
 license = {file = "LICENSE"}
 authors = [{name = "Romain Courtois", email = "romain@coderamp.io"}]
 classifiers=[
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -53,6 +59,7 @@ disable = [
     "too-few-public-methods",
     "broad-exception-caught",
     "duplicate-code",
+    "fixme",
 ]
 
 [tool.pycln]
@@ -75,5 +82,6 @@ pythonpath = ["src"]
 testpaths = ["tests/"]
 python_files = "test_*.py"
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 python_classes = "Test*"
 python_functions = "test_*"

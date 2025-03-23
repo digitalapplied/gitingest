@@ -1,8 +1,15 @@
-""" Tests to verify that the query parser is Git host agnostic. """
+"""
+Tests to verify that the query parser is Git host agnostic.
+
+These tests confirm that `parse_query` correctly identifies user/repo pairs and canonical URLs for GitHub, GitLab,
+Bitbucket, Gitea, and Codeberg, even if the host is omitted.
+"""
+
+from typing import List
 
 import pytest
 
-from gitingest.query_parser import parse_query
+from gitingest.query_parsing import parse_query
 
 
 @pytest.mark.parametrize(
@@ -62,20 +69,27 @@ from gitingest.query_parser import parse_query
 )
 @pytest.mark.asyncio
 async def test_parse_query_without_host(
-    urls: list[str],
+    urls: List[str],
     expected_user: str,
     expected_repo: str,
     expected_url: str,
 ) -> None:
+    """
+    Test `parse_query` for Git host agnosticism.
+
+    Given multiple URL variations for the same user/repo on different Git hosts (with or without host names):
+    When `parse_query` is called with each variation,
+    Then the parser should correctly identify the user, repo, canonical URL, and other default fields.
+    """
     for url in urls:
-        result = await parse_query(url, max_file_size=50, from_web=True)
-        # Common assertions for all cases
-        assert result["user_name"] == expected_user
-        assert result["repo_name"] == expected_repo
-        assert result["url"] == expected_url
-        assert result["slug"] == f"{expected_user}-{expected_repo}"
-        assert result["id"] is not None
-        assert result["subpath"] == "/"
-        assert result["branch"] is None
-        assert result["commit"] is None
-        assert result["type"] is None
+        query = await parse_query(url, max_file_size=50, from_web=True)
+
+        assert query.user_name == expected_user
+        assert query.repo_name == expected_repo
+        assert query.url == expected_url
+        assert query.slug == f"{expected_user}-{expected_repo}"
+        assert query.id is not None
+        assert query.subpath == "/"
+        assert query.branch is None
+        assert query.commit is None
+        assert query.type is None

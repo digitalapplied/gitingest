@@ -1,41 +1,39 @@
-name: Publish to PyPI
+name: "Publish to PyPI"
 
 on:
   release:
-    types: [created] # Trigger only when a release is created
-  workflow_dispatch: # Allows manual triggering of the workflow
+    types: [created]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  publish:
+  release-build:
     runs-on: ubuntu-latest
-
     steps:
-      # Step 1: Check out the code
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      # Step 2: Set up Python
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: 3.13
-
-      # Step 3: Install dependencies for building and publishing
-      - name: Install build tools
+          python-version: "3.13"
+      - name: Build package
         run: |
-          pip install --upgrade pip
-          pip install build twine
-
-      # Step 4: Build the package
-      - name: Build the package
-        run: |
+          pip install build
           python -m build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
 
-      # Step 5: Publish to PyPI
-      - name: Publish to PyPI
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-        run: |
-          python -m twine check dist/*
-          python -m twine upload --skip-existing dist/*
+  pypi-publish:
+    needs: [release-build]
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1

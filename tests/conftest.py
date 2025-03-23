@@ -1,48 +1,78 @@
-""" This module contains fixtures for the tests. """
+"""
+Fixtures for tests.
+
+This file provides shared fixtures for creating sample queries, a temporary directory structure, and a helper function
+to write `.ipynb` notebooks for testing notebook utilities.
+"""
 
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable, Dict
 
 import pytest
 
+from gitingest.query_parsing import IngestionQuery
+
+WriteNotebookFunc = Callable[[str, Dict[str, Any]], Path]
+
 
 @pytest.fixture
-def sample_query() -> dict[str, Any]:
-    return {
-        "user_name": "test_user",
-        "repo_name": "test_repo",
-        "local_path": Path("/tmp/test_repo").resolve(),
-        "subpath": "/",
-        "branch": "main",
-        "commit": None,
-        "max_file_size": 1_000_000,
-        "slug": "test_user/test_repo",
-        "ignore_patterns": ["*.pyc", "__pycache__", ".git"],
-        "include_patterns": None,
-        "pattern_type": "exclude",
-    }
+def sample_query() -> IngestionQuery:
+    """
+    Provide a default `IngestionQuery` object for use in tests.
+
+    This fixture returns a `IngestionQuery` pre-populated with typical fields and some default ignore patterns.
+
+    Returns
+    -------
+    IngestionQuery
+        The sample `IngestionQuery` object.
+    """
+    return IngestionQuery(
+        user_name="test_user",
+        repo_name="test_repo",
+        url=None,
+        subpath="/",
+        local_path=Path("/tmp/test_repo").resolve(),
+        slug="test_user/test_repo",
+        id="id",
+        branch="main",
+        max_file_size=1_000_000,
+        ignore_patterns={"*.pyc", "__pycache__", ".git"},
+        include_patterns=None,
+    )
 
 
 @pytest.fixture
 def temp_directory(tmp_path: Path) -> Path:
     """
-    # Creates the following structure:
-    # test_repo/
-    # ├── file1.txt
-    # ├── file2.py
-    # └── src/
-    # |   ├── subfile1.txt
-    # |   └── subfile2.py
-    # |   └── subdir/
-    # |       └── file_subdir.txt
-    # |       └── file_subdir.py
-    # └── dir1/
-    # |   └── file_dir1.txt
-    # └── dir2/
-    #     └── file_dir2.txt
-    """
+    Create a temporary directory structure for testing repository scanning.
 
+    The structure includes:
+    test_repo/
+    ├── file1.txt
+    ├── file2.py
+    ├── src/
+    │   ├── subfile1.txt
+    │   ├── subfile2.py
+    │   └── subdir/
+    │       ├── file_subdir.txt
+    │       └── file_subdir.py
+    ├── dir1/
+    │   └── file_dir1.txt
+    └── dir2/
+        └── file_dir2.txt
+
+    Parameters
+    ----------
+    tmp_path : Path
+        The temporary directory path provided by the `tmp_path` fixture.
+
+    Returns
+    -------
+    Path
+        The path to the created `test_repo` directory.
+    """
     test_dir = tmp_path / "test_repo"
     test_dir.mkdir()
 
@@ -76,12 +106,23 @@ def temp_directory(tmp_path: Path) -> Path:
 
 
 @pytest.fixture
-def write_notebook(tmp_path: Path):
+def write_notebook(tmp_path: Path) -> WriteNotebookFunc:
     """
-    A fixture that returns a helper function to write a .ipynb notebook file at runtime with given content.
+    Provide a helper function to write a `.ipynb` notebook file with the given content.
+
+    Parameters
+    ----------
+    tmp_path : Path
+        The temporary directory path provided by the `tmp_path` fixture.
+
+    Returns
+    -------
+    WriteNotebookFunc
+        A callable that accepts a filename and a dictionary (representing JSON notebook data), writes it to a `.ipynb`
+        file, and returns the path to the file.
     """
 
-    def _write_notebook(name: str, content: dict[str, Any]) -> Path:
+    def _write_notebook(name: str, content: Dict[str, Any]) -> Path:
         notebook_path = tmp_path / name
         with notebook_path.open(mode="w", encoding="utf-8") as f:
             json.dump(content, f)
